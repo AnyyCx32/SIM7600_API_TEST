@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Telemetría Tren Ligero - Demo</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<style>
+  body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; }
+  #map { height: 400px; margin: 20px auto; width: 90%; border-radius: 12px; }
+  table { margin: 20px auto; border-collapse: collapse; width: 90%; }
+  th, td { padding: 8px 12px; border: 1px solid #ccc; }
+  th { background: #333; color: white; }
+</style>
+</head>
+<body>
+<h2>📍 Telemetría Tren Ligero - Datos Recibidos</h2>
+<div id="map"></div>
+<table id="tabla">
+  <thead>
+    <tr><th>Fecha</th><th>Latitud</th><th>Longitud</th><th>Velocidad</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+const map = L.map('map').setView([19.4326, -99.1332], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap'
+}).addTo(map);
+
+const marker = L.marker([19.4326, -99.1332]).addTo(map);
+const tabla = document.querySelector('#tabla tbody');
+
+async function actualizar() {
+  const res = await fetch('/api/v1/telemetria/tren-ligero/datos');
+  const json = await res.json();
+  const datos = json.datos;
+  if (datos.length > 0) {
+    const ult = datos[datos.length - 1];
+    marker.setLatLng([ult.lat, ult.lon]);
+    map.setView([ult.lat, ult.lon], 13);
+  }
+
+  tabla.innerHTML = datos.map(d =>
+    `<tr><td>${d.fecha}</td><td>${d.lat}</td><td>${d.lon}</td><td>${d.vel}</td></tr>`
+  ).join('');
+}
+
+setInterval(actualizar, 5000);
+actualizar();
+</script>
+</body>
+</html>
