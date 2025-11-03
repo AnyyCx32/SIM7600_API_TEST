@@ -9,6 +9,11 @@ app.use(express.static(path.join(__dirname, "public")));
 let lastData = null;
 let dataLog = [];
 
+// Ruta raíz para Render
+app.get("/", (req, res) => {
+  res.send("Servidor SIM7600_API_TEST en línea 🚀");
+});
+
 app.post("/api/v1/telemetria/tren-ligero/enviar-coordenadas", (req, res) => {
   const data = req.body;
   const now = new Date().toISOString();
@@ -29,3 +34,4 @@ const port = process.env.PORT || 3000;
 app.listen(port, () =>
   console.log(`Servidor telemetría activo en puerto ${port}`)
 );
+
